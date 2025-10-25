@@ -9,54 +9,49 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // Show the login form
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // Handle login request
     public function login(Request $request)
     {
         // Validate input
         $request->validate([
             'id_number' => 'required|string',
-            'password'  => 'required|string|min:6',
+            'password'  => 'required|string',
             'role'      => 'required|string|in:Admin,Teacher,Student',
         ]);
 
-        // Find the user by ID number
+        // Step 1: Find user by ID number
         $user = User::where('id_number', $request->id_number)->first();
 
-        if ($user && Hash::check($request->password, $user->password)) {
-            
-            // Check if selected role matches user's role
-            if ($user->role !== $request->role) {
-                return back()->withErrors([
-                    'role' => 'Selected role does not match this account.'
-                ])->onlyInput('id_number');
-            }
-
-            // Login the user
-            Auth::login($user);
-            $request->session()->regenerate();
-            $request->session()->put('selected_role', $user->role);
-
-            // Redirect based on role
-            return match ($user->role) {
-                'Admin'   => redirect()->route('admin.dashboard'),
-                'Teacher' => redirect()->route('teacher.dashboard'),
-                'Student' => redirect()->route('student.dashboard'),
-            };
+        if (!$user) {
+            return back()->withErrors(['id_number' => 'Invalid ID number or password.'])->onlyInput('id_number');
         }
 
-        // If login fails
-        return back()->withErrors([
-            'id_number' => 'Invalid ID number or password.',
-        ])->onlyInput('id_number');
+        // Step 2: Check password (hashed)
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['id_number' => 'Invalid ID number or password.'])->onlyInput('id_number');
+        }
+
+        // Step 3: Check role (case-insensitive)
+        if (strcasecmp($user->role, $request->role) !== 0) {
+            return back()->withErrors(['role' => 'Selected role does not match this account.'])->onlyInput('id_number');
+        }
+
+        // Step 4: Login user
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // Step 5: Redirect based on role
+        return match (ucfirst(strtolower($user->role))) {
+            'Admin' => redirect()->route('admin.dashboard'),
+            'Teacher' => redirect()->route('teacher.dashboard'),
+            'Student' => redirect()->route('student.dashboard'),
+        };
     }
 
-    // Logout
     public function logout(Request $request)
     {
         Auth::logout();

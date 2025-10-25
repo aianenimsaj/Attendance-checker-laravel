@@ -1,16 +1,16 @@
-@extends('layouts.app')
+@extends('layouts.header') {{-- or layouts.app, depending on which layout you use --}}
 @section('title', 'Manage Students')
 
 @section('content')
 <div class="container">
-    <h2>Manage Students</h2>
+    <h2 class="mb-4">Manage Students</h2>
 
-    <!-- Success Message -->
+    {{-- ✅ Success Message --}}
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <!-- Validation Errors -->
+    {{-- ✅ Validation Errors --}}
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul class="mb-0">
@@ -21,9 +21,9 @@
         </div>
     @endif
 
-    <!-- Add Student Form -->
+    {{-- ✅ Add Student Form --}}
     <div class="card mb-4">
-        <div class="card-header">Add New Student</div>
+        <div class="card-header bg-dark text-white">Add New Student</div>
         <div class="card-body">
             <form action="{{ route('admin.students.store') }}" method="POST">
                 @csrf
@@ -48,14 +48,14 @@
         </div>
     </div>
 
-    <!-- Student List -->
+    {{-- ✅ Student List --}}
     <div class="card">
-        <div class="card-header">Student List</div>
+        <div class="card-header bg-dark text-white">Student List</div>
         <div class="card-body">
             @if($students->isEmpty())
                 <p>No students found.</p>
             @else
-                <table class="table table-bordered">
+                <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>ID Number</th>
@@ -71,7 +71,7 @@
                             <td>{{ $student->name }}</td>
                             <td>{{ $student->course }}</td>
                             <td>
-                                <!-- Update Form -->
+                                {{-- ✅ Update Form --}}
                                 <form action="{{ route('admin.students.update', $student->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     @method('PUT')
@@ -80,7 +80,7 @@
                                     <button type="submit" class="btn btn-sm btn-success">Update</button>
                                 </form>
 
-                                <!-- Delete Form -->
+                                {{-- ✅ Delete Form --}}
                                 <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')

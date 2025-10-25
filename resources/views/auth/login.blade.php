@@ -22,7 +22,7 @@
 
             <div class="mb-3">
                 <label for="id_number" class="form-label">ID Number</label>
-                <input type="text" name="id_number" class="form-control" value="{{ old('id_number') }}" required placeholder="2025-001">
+                <input type="text" name="id_number" class="form-control" value="{{ old('id_number') }}" required placeholder="ADMIN001">
             </div>
 
             <div class="mb-3">

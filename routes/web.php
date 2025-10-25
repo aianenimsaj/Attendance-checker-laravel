@@ -31,13 +31,24 @@ Route::middleware(['auth'])->group(function () {
         // You can add them later when you create ClassesController
     });
 
-    // Teacher routes
+
     Route::middleware(['role:Teacher'])->group(function () {
         Route::get('/teacher/dashboard', [DashboardController::class, 'teacherDashboard'])->name('teacher.dashboard');
-        Route::get('/teacher/attendance', [AttendanceController::class, 'index'])->name('teacher.attendance');
+        Route::get('/teacher/attendance', [AttendanceController::class, 'index'])->name('teacher.attendance');  // ✅ This
         Route::post('/teacher/attendance', [AttendanceController::class, 'store'])->name('teacher.attendance.store');
-        Route::get('/teacher/attendance/view', [AttendanceController::class, 'view'])->name('teacher.attendance.view');
+        Route::get('/teacher/attendance/{attendance}', [AttendanceController::class, 'show'])->name('teacher.attendance.show');
     });
+    
+
+    Route::middleware(['role:Teacher'])->group(function () {
+        Route::get('/teacher/dashboard', [DashboardController::class, 'teacherDashboard'])->name('teacher.dashboard');
+        Route::get('/teacher/attendance', [AttendanceController::class, 'index'])->name('teacher.attendance');  // ✅ This
+        Route::post('/teacher/attendance', [AttendanceController::class, 'store'])->name('teacher.attendance.store');
+        Route::get('/teacher/attendance/{attendance}', [AttendanceController::class, 'show'])->name('teacher.attendance.show');
+    });
+    
+    
+    
 
     // Student routes
     Route::middleware(['role:Student'])->group(function () {
