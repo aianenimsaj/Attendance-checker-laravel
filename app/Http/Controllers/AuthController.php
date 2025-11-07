@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 {
@@ -16,7 +18,8 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Validate input
+
+         // Validate input
         $request->validate([
             'id_number' => 'required|string',
             'password'  => 'required|string',
@@ -40,17 +43,25 @@ class AuthController extends Controller
             return back()->withErrors(['role' => 'Selected role does not match this account.'])->onlyInput('id_number');
         }
 
-        // Step 4: Login user
+       // Step 4: Login user
         Auth::login($user);
+
+// Step 5: Regenerate session *after* login
         $request->session()->regenerate();
 
-        // Step 5: Redirect based on role
-        return match (ucfirst(strtolower($user->role))) {
-            'Admin' => redirect()->route('admin.dashboard'),
-            'Teacher' => redirect()->route('teacher.dashboard'),
-            'Student' => redirect()->route('student.dashboard'),
-        };
-    }
+// Step 6: Redirect based on role safely
+switch (ucfirst(strtolower($user->role))) {
+    case 'Admin':
+        return redirect()->route('admin.dashboard')->with('success', 'Welcome, Admin!');
+    case 'Teacher':
+        return redirect()->route('teacher.dashboard')->with('success', 'Welcome, Teacher!');
+    case 'Student':
+        return redirect()->route('student.dashboard')->with('success', 'Welcome, Student!');
+    default:
+        Auth::logout();
+        return redirect()->route('login')->withErrors(['role' => 'Invalid role.']);
+}
+}
 
     public function logout(Request $request)
     {

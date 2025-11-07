@@ -7,11 +7,12 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuthController; 
 
+Route::middleware(['web'])->group(function () {
 // -----------------------------
 // Public Routes (No login required)
 // -----------------------------
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login.post', [AuthController::class, 'login'])->name('login.post');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // -----------------------------
@@ -31,7 +32,6 @@ Route::middleware(['auth'])->group(function () {
         // You can add them later when you create ClassesController
     });
 
-
     Route::middleware(['role:Teacher'])->group(function () {
         Route::get('/teacher/dashboard', [DashboardController::class, 'teacherDashboard'])->name('teacher.dashboard');
         Route::get('/teacher/attendance', [AttendanceController::class, 'index'])->name('teacher.attendance');  // ✅ This
@@ -39,17 +39,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/teacher/attendance/{attendance}', [AttendanceController::class, 'show'])->name('teacher.attendance.show');
     });
     
-
-    Route::middleware(['role:Teacher'])->group(function () {
-        Route::get('/teacher/dashboard', [DashboardController::class, 'teacherDashboard'])->name('teacher.dashboard');
-        Route::get('/teacher/attendance', [AttendanceController::class, 'index'])->name('teacher.attendance');  // ✅ This
-        Route::post('/teacher/attendance', [AttendanceController::class, 'store'])->name('teacher.attendance.store');
-        Route::get('/teacher/attendance/{attendance}', [AttendanceController::class, 'show'])->name('teacher.attendance.show');
-    });
-    
-    
-    
-
     // Student routes
     Route::middleware(['role:Student'])->group(function () {
         Route::get('/student/dashboard', [DashboardController::class, 'studentDashboard'])->name('student.dashboard');
@@ -61,4 +50,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 });
